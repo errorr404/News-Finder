@@ -2,54 +2,53 @@ import React from 'react';
 import TextField from 'material-ui/TextField';
 //import SelectField from 'material-ui/SelectField';
 //import MenuItem from '@material-ui/core/MenuItem';
-import ImageResults from '../image-results/ImageResults';
-
+import Items from '../items/Item';
 import axios from 'axios';
-
 class Search extends React.Component {
   state = {
-    searchText: '',
-    amount: 100,
-    apiUrl:'https://pixabay.com/api',
-    apiKey: '9731286-71ec3c3cb015402b63e447b63',
-    images: []
-  };
-
-  ontextChange = (e) => {
-    const val = e.target.value;
-    this.setState({[e.target.name]:val},() => {
-      if(val ==='')
-      {
-        this.setState({images: []});
-
+    article:[],
+    inputText: ''
+  }
+  onChangeSearch = (e)=>{
+    e.preventDefault();
+    console.log(e.target.value);
+    this.setState({inputText:e.target.value},()=>{
+      if(this.state.inputText ==='') {
+        alert('please enter the topic');
       }
       else {
-        axios.get(`${this.state.apiUrl}/?key=${this.state.apiKey}&q=${this.state.searchText}&image_type=photo&per_page=${this.state.amount}&safesearch=true`)
-        .then(res => this.setState({images: res.data.hits}))
+        axios.get(`https://newsapi.org/v2/everything?q=${this.state.inputText}&apiKey=0b08992c1da84a4481642db8787e45de`)
+        .then(res =>{
+          this.setState({article:res.data.articles});
+          //console.log('under the axios',this.state.article);
+        }  )
         .catch(err=>console.log(err));
+        // console.log('article',this.state.article);
       }
-
-    });
+    //  console.log('article',this.state.article);
+    }
+  )
   }
-  //onAmountChange =(e,index,value) =>this.setState({amount:value});
   render() {
-    console.log(this.state.images);
-  //  if(this.state.images.length === 0) alert('Enter a valid text bro');
+
     return(
       <div>
       <TextField
+      className="searchBar"
       name="searchText"
-      value = {this.state.searchText}
-      onChange = {this.ontextChange}
+      value = {this.state.inputText}
+      onChange = {this.onChangeSearch}
       floatingLabelText = "search for Images"
       fullWidth = {true}
       />
-      <br />
-      {this.state.images.length > 0 ? (
-          <ImageResults images={this.state.images} />
-        ) : null}
+      {this.state.article.map((item)=>{
+        //console.log(item);
+      return  <Items item={item}  key={item.publishedAt}/>
+        // /console.log("asdfdf");
+      })}
       </div>
     );
   }
 }
+
 export default Search;
